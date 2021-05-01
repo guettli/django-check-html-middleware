@@ -1,9 +1,8 @@
-# What is "django-check-html-middleware"?
+# django-check-html-middleware
 
-This middleware for the Django Web Frameworks provides you a way to check all HTML which you create 
-on the server before sending it to the client.
+This middleware for the Django Web Frameworks checks the HTML you create.
 
-It get created to check HTML during development an testing. At least I don't use it on production servers.
+The middleware should only be used during development.
 
 By default the middleware deactivates itself, if settings.DEBUG is False.
 
@@ -38,6 +37,18 @@ Defaults to:
     '/admin/',
     ]
 ```
+
+# Wrapper for "utidylib"
+
+This middleware is just a thin wrapper for [utidylib](https://pypi.org/project/uTidylib/).
+
+# Feedback is welcome!
+
+What do you think could get improved?
+
+Please tell me and open an issue at github.
+
+Thank you!
 
 # Development installation
 
