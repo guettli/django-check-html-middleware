@@ -13,12 +13,14 @@ pip install django-check-html-middleware
 
 # settings.py
 
-Add `check_html.CheckHTMLMiddleware` at the end of your middleware.
+Add `check_html.CheckHTMLMiddleware` at the start of your middleware.
+
+If you use the Django-Debug-Toolbar, then put the check-html middleware below it.
 
 ```
 MIDDLEWARE = [
-    ....
     'check_html.CheckHTMLMiddleware',
+    ....
 ]
 ```
 
