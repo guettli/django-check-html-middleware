@@ -1,3 +1,4 @@
+import pytest
 from django.http import HttpResponse
 
 from check_html import CheckHTMLMiddleware, CheckHTMLException
@@ -18,3 +19,10 @@ def test_check_html(rf):
 
     response = CheckHTMLMiddleware(get_response)(rf.get('/admin/'))
     assert response.content == b'<div>x<div>'
+
+def test_settings(settings, rf):
+    settings.CHECK_HTML_IGNORE_STARTSWITH_PATH = []
+    def get_response(request):
+        return HttpResponse('<div>x<div>')
+    with pytest.raises(CheckHTMLException):
+            CheckHTMLMiddleware(get_response)(rf.get('/admin/'))
