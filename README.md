@@ -13,6 +13,15 @@ pip install django-check-html-middleware
 
 # settings.py
 
+Add `check_html.CheckHTMLMiddleware` at the end of your middleware.
+
+```
+MIDDLEWARE = [
+    ....
+    'check_html.CheckHTMLMiddleware',
+]
+```
+
 CHECK_HTML_IGNORE_MESSAGES: A list of strings. Each string is an error messages which should get ignored.
 
 Defaults to:
