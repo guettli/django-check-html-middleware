@@ -6,6 +6,15 @@ The middleware should only be used during development.
 
 By default the middleware deactivates itself, if settings.DEBUG is False.
 
+# In Action
+
+Imagine you have a typo in your HTML like this: `<th>foo</td>`, then you get a html page like this:
+
+```
+line 89, col 14: discarding unexpected </td>:
+      <th>foo</td>
+```
+
 # Install
 ```
 pip install django-check-html-middleware
