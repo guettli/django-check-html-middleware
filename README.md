@@ -7,6 +7,38 @@ It get created to check HTML during development an testing. At least I don't use
 
 By default the middleware deactivates itself, if settings.DEBUG is False.
 
+# Install
+```
+pip install django-check-html-middleware
+```
+
+# settings.py
+
+CHECK_HTML_IGNORE_MESSAGES: A list of strings. Each string is an error messages which should get ignored.
+
+Defaults to:
+```
+[
+    'trimming empty',
+    'proprietary attribute',
+    'missing <!DOCTYPE> declaration',
+    'inserting implicit <body>',
+    '''inserting missing 'title' element''',
+    'moved <style> tag to <head>',
+    'inserting implicit <p>',
+    ]
+```
+
+CHECK_HTML_IGNORE_STARTSWITH_PATH: A list of strings. If a URL path starts with this string, this response
+does not get checked.
+
+Defaults to:
+```
+[
+    '/admin/',
+    ]
+```
+
 # Development installation
 
 ```

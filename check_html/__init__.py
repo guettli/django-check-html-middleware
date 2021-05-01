@@ -1,4 +1,5 @@
 import os
+from typing import List
 
 from django.conf import settings
 from django.core.exceptions import MiddlewareNotUsed
@@ -10,8 +11,13 @@ from django.utils.safestring import mark_safe
 def join(my_list, sep=''):
     return mark_safe(sep.join([conditional_escape(item) for item in my_list]))
 
+class CheckHTMLException(Exception):
+    pass
+
 class CheckHTMLMiddleware():
-    ignore_messages = (
+    ignore_messages: List[str]
+
+    ignore_messages_default = (
         'trimming empty',
         'proprietary attribute',
         'missing <!DOCTYPE> declaration',
@@ -20,28 +26,27 @@ class CheckHTMLMiddleware():
         'moved <style> tag to <head>',
         'inserting implicit <p>',
     )
-    ignore_paths = [
-        '/privacy',
-    ]
-    ignore_startswith_paths = [
-        '/admin/',
-        '/accounts/',
-        '/invoice_as_html_for_html_mail_page',
-    ]
 
-    @classmethod
-    def skip_path(cls, path):
-        if path in cls.ignore_paths:
-            return True
-        for startswith in cls.ignore_startswith_paths:
-            if path.startswith(startswith):
-                return True
-        return False
+    ignore_startswith_paths: List[str]
+
+    ignore_startswith_paths_default = [
+        '/admin/',
+    ]
 
     def __init__(self, get_response):
         if not settings.DEBUG:
             raise MiddlewareNotUsed()
         self.get_response = get_response
+        self.ignore_messages = getattr(settings, 'CHECK_HTML_IGNORE_MESSAGES', self.ignore_messages_default)
+        self.ignore_startswith_paths = getattr(settings, 'CHECK_HTML_IGNORE_STARTSWITH_PATH',
+                                               self.ignore_startswith_paths_default)
+
+
+    def skip_path(self, path):
+        for startswith in self.ignore_startswith_paths:
+            if path.startswith(startswith):
+                return True
+        return False
 
     def __call__(self, request):
         response = self.get_response(request)
@@ -79,7 +84,7 @@ class CheckHTMLMiddleware():
         if not errors_html:
             return response
         if "PYTEST_CURRENT_TEST" in os.environ:
-            raise Exception(errors_html)
+            raise CheckHTMLException(errors_html)
         return HttpResponseServerError(format_html('<ul>{}</ul>', join(errors_html)))
 
     @classmethod
