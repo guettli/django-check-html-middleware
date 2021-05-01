@@ -15,6 +15,12 @@ line 89, col 14: discarding unexpected </td>:
       <th>foo</td>
 ```
 
+# Anachronism?
+
+Many people send JSON instead of HTML over the wire these days....
+
+I use [htmx](//htmx.org) and function-based-views if I can choose :-)
+
 # Install
 ```
 pip install django-check-html-middleware
