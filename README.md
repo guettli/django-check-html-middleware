@@ -10,5 +10,14 @@ By default the middleware deactivates itself, if settings.DEBUG is False.
 # Development installation
 
 ```
-pip install -e git+ssh://git@github.com/guettli/django-check-html-middleware.git#egg=django-check-html-middleware
+python3 -m venv check-html-env
+cd check-html-env/
+. bin/activate
+pip install -U pip wheel
+git clone git@github.com:guettli/django-check-html-middleware.git
+mv django-check-html-middleware code
+pip install -e code
+cd code
+
+pytest
 ```
