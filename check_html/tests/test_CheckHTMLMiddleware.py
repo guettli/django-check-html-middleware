@@ -17,7 +17,7 @@ def test_check_html(rf):
     except CheckHTMLException as exc:
         assert 'line 1, col 7: missing &lt;/div&gt;:' in str(exc)
 
-    response = CheckHTMLMiddleware(get_response)(rf.get('/admin/'))
+    response = CheckHTMLMiddleware(get_response)(rf.get('/admin/foo'))
     assert response.content == b'<div>x<div>'
 
 def test_settings(settings, rf):

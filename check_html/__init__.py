@@ -1,4 +1,5 @@
 import os
+import re
 from typing import List
 
 from django.conf import settings
@@ -27,10 +28,10 @@ class CheckHTMLMiddleware():
         'inserting implicit <p>',
     )
 
-    ignore_startswith_paths: List[str]
+    ignore_regex_paths: List[str]
 
-    ignore_startswith_paths_default = [
-        '/admin/',
+    ignore_regex_paths_default = [
+        '/admin/.*',
     ]
 
     def __init__(self, get_response):
@@ -38,13 +39,13 @@ class CheckHTMLMiddleware():
             raise MiddlewareNotUsed()
         self.get_response = get_response
         self.ignore_messages = getattr(settings, 'CHECK_HTML_IGNORE_MESSAGES', self.ignore_messages_default)
-        self.ignore_startswith_paths = getattr(settings, 'CHECK_HTML_IGNORE_STARTSWITH_PATH',
-                                               self.ignore_startswith_paths_default)
+        self.ignore_regex_paths = getattr(settings, 'CHECK_HTML_IGNORE_REGEX_PATH',
+                                               self.ignore_regex_paths_default)
 
 
     def skip_path(self, path):
-        for startswith in self.ignore_startswith_paths:
-            if path.startswith(startswith):
+        for regex in self.ignore_regex_paths:
+            if re.match(regex, path):
                 return True
         return False
 
@@ -66,14 +67,14 @@ class CheckHTMLMiddleware():
         doc = tidy.parseString(response.content)
         if not doc.errors:
             return response
-        return self.create_error_report(doc, response.content, response)
+        return self.create_error_report(doc, response.content, response, request.build_absolute_uri())
 
     def skip_this_error(self, error):
         for msg in self.ignore_messages:
             if msg in error.message:
                 return True
 
-    def create_error_report(self, doc, content, response):
+    def create_error_report(self, doc, content, response, url=''):
         lines = [line.decode('utf8') for line in content.split(b'\n')]
         errors_html = []
         for error in doc.errors:
@@ -84,7 +85,7 @@ class CheckHTMLMiddleware():
         if not errors_html:
             return response
         if "PYTEST_CURRENT_TEST" in os.environ:
-            raise CheckHTMLException(errors_html)
+            raise CheckHTMLException('at {}: {}', url, errors_html)
         return HttpResponseServerError(format_html('<ul>{}</ul>', join(errors_html)))
 
     @classmethod
