@@ -26,6 +26,7 @@ class CheckHTMLMiddleware():
         '''inserting missing 'title' element''',
         'moved <style> tag to <head>',
         'inserting implicit <p>',
+        '<img> lacks "alt" attribute',
     )
 
     ignore_regex_paths: List[str]
