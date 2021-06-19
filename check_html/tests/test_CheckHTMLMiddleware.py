@@ -17,11 +17,12 @@ def test_check_html(rf):
     except CheckHTMLException as exc:
         assert 'line 1, col 7: missing &lt;/div&gt;:' in str(exc)
 
-    response = CheckHTMLMiddleware(get_response)(rf.get('/admin/'))
+    response = CheckHTMLMiddleware(get_response)(rf.get('/admin/foo'))
     assert response.content == b'<div>x<div>'
 
 def test_settings(settings, rf):
-    settings.CHECK_HTML_IGNORE_STARTSWITH_PATH = []
+    settings.CHECK_HTML_IGNORE_REGEX_PATH = []
+
     def get_response(request):
         return HttpResponse('<div>x<div>')
     with pytest.raises(CheckHTMLException):

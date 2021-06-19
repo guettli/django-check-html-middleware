@@ -54,13 +54,13 @@ Defaults to:
     ]
 ```
 
-CHECK_HTML_IGNORE_STARTSWITH_PATH: A list of strings. If a URL path starts with this string, this response
+CHECK_HTML_IGNORE_REGEX_PATH: A list of regex strings. If a URL path matches this string, this response
 does not get checked.
 
 Defaults to:
 ```
 [
-    '/admin/',
+    '/admin/.*',
     ]
 ```
 
