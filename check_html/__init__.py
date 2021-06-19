@@ -34,7 +34,7 @@ class CheckHTMLMiddleware():
     ]
 
     def __init__(self, get_response):
-        if not settings.DEBUG:
+        if not (settings.DEBUG or 'PYTEST_CURRENT_TEST' in os.environ):
             raise MiddlewareNotUsed()
         self.get_response = get_response
         self.ignore_messages = getattr(settings, 'CHECK_HTML_IGNORE_MESSAGES', self.ignore_messages_default)
