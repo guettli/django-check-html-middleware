@@ -35,7 +35,7 @@ class CheckHTMLMiddleware():
         '/admin/.*',
     ]
 
-    def __init__(self, get_response):
+    def __init__(self, get_response=None):
         if not (settings.DEBUG or 'PYTEST_CURRENT_TEST' in os.environ):
             raise MiddlewareNotUsed()
         self.get_response = get_response
@@ -64,18 +64,26 @@ class CheckHTMLMiddleware():
             return response
         if not response.content:
             return response
-        import tidy
-        doc = tidy.parseString(response.content)
-        if not doc.errors:
+        errors_html = self.get_errors(response.content, url=request.build_absolute_uri())
+        if not errors_html:
             return response
-        return self.create_error_report(doc, response.content, response, request.build_absolute_uri())
+        return HttpResponseServerError(errors_html)
+
+    def get_errors(self, content, url=''):
+        if isinstance(content, str):
+            content = content.encode('utf8')
+        import tidy
+        doc = tidy.parseString(content)
+        if not doc.errors:
+            return
+        return self.create_error_report(doc, content, url)
 
     def skip_this_error(self, error):
         for msg in self.ignore_messages:
             if msg in error.message:
                 return True
 
-    def create_error_report(self, doc, content, response, url=''):
+    def create_error_report(self, doc, content, url=''):
         lines = [line.decode('utf8') for line in content.split(b'\n')]
         errors_html = []
         for error in doc.errors:
@@ -84,10 +92,11 @@ class CheckHTMLMiddleware():
             errors_html.append(format_html('<li>line {}, col {}: {}: {}', error.line, error.col, error.message,
                                            self.lines_html(lines, error.line-1)))
         if not errors_html:
-            return response
+            return
+        errors_html = format_html('<ul>{}</ul>', join(errors_html))
         if "PYTEST_CURRENT_TEST" in os.environ:
             raise CheckHTMLException('at {}: {}', url, errors_html)
-        return HttpResponseServerError(format_html('<ul>{}</ul>', join(errors_html)))
+        return errors_html
 
     @classmethod
     def lines_html(cls, lines, error_index):
