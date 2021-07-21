@@ -54,7 +54,8 @@ class CheckHTMLMiddleware():
         response = self.get_response(request)
         if request.GET and request.GET.get('nocheck'):
             return response
-        if not response['content-type'].startswith('text/html'):
+        content_type = response.get('content-type', '')
+        if not content_type.startswith('text/html'):
             return response
         if b'ul.traceback' in response.content: # django debug page
             return response

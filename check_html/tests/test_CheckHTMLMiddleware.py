@@ -1,5 +1,5 @@
 import pytest
-from django.http import HttpResponse
+from django.http import HttpResponse, FileResponse
 
 from check_html import CheckHTMLMiddleware, CheckHTMLException
 
@@ -38,3 +38,12 @@ def test_settings(settings, rf):
         return HttpResponse('<div>x<div>')
     with pytest.raises(CheckHTMLException):
             CheckHTMLMiddleware(get_response)(rf.get('/admin/'))
+
+def test_response_without_content_type(rf):
+    def get_response(request):
+        response = HttpResponse()
+        del response['content-type']
+        return response
+    response = CheckHTMLMiddleware(get_response)(rf.get('/'))
+    assert response.status_code == 200
+    assert response.content == b''
