@@ -1,4 +1,7 @@
 #!/bin/bash
+
+# update version in setup.cfg by hand.
+
 set -euxo pipefail
 rm -f dist/*
 pytest
